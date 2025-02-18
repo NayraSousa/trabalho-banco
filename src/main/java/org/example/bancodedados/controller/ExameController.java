@@ -1,9 +1,9 @@
-package controller;
+package org.example.bancodedados.controller;
 
-import model.Exame;
+import org.example.bancodedados.model.Exame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import service.ExameService;
+import org.example.bancodedados.service.ExameService;
 
 import java.util.List;
 

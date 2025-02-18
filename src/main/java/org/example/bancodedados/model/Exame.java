@@ -1,6 +1,5 @@
-package model;
+package org.example.bancodedados.model;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +10,7 @@ public class Exame {
     String descricao;
     String tipo;
     float preco;
-    String dataDeAgendamento;
+    String dataAgendamento;
     Paciente paciente;
     Medico medico;
     Resultado resultado;

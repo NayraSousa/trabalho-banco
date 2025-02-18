@@ -1,4 +1,4 @@
-package conexaoJDBC;
+package org.example.bancodedados.conexaoJDBC;
 
 import java.sql.*;
 
@@ -12,11 +12,13 @@ public class Conexao {
     private static final String SENHA = "root";
 
     public static Connection getConexao() throws SQLException {
-        try {
-            conexao = DriverManager.getConnection(URL, USUARIO, SENHA);
-            System.out.println("Conexão estabelecida com sucesso!");
-        } catch (SQLException e) {
-            System.err.println("Erro ao conectar ao banco de dados: " + e.getMessage());
+        if(conexao == null){
+            try {
+                conexao = DriverManager.getConnection(URL, USUARIO, SENHA);
+                System.out.println("Conexão estabelecida com sucesso!");
+            } catch (SQLException e) {
+                System.err.println("Erro ao conectar ao banco de dados: " + e.getMessage());
+            }
         }
         return conexao;
     }

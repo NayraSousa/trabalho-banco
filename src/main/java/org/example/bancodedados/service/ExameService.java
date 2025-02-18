@@ -1,7 +1,8 @@
-package service;
+package org.example.bancodedados.service;
 
-import DAO.ExameDAO;
-import model.Exame;
+import org.example.bancodedados.DAO.ExameDAO;
+import org.example.bancodedados.model.Exame;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -11,7 +12,8 @@ import java.util.List;
 @Service
 public class ExameService {
 
-    ExameDAO exameDAO;
+    @Autowired
+    private ExameDAO exameDAO;
 
     public void inserirExame(Exame exame){
         try {
@@ -41,13 +43,13 @@ public class ExameService {
     }
 
     public List<Exame> buscarTodos(){
-        List<Exame> exameNovo = new ArrayList<Exame>();
+        List<Exame> exames = new ArrayList<Exame>();
 
         try{
-            exameDAO.buscarTodos();
+            exames = exameDAO.buscarTodos();
         } catch (SQLException e){
             System.err.println("Erro: " + e);
         }
-        return exameNovo;
+        return exames;
     }
 }

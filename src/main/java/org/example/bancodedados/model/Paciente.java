@@ -1,4 +1,4 @@
-package model;
+package org.example.bancodedados.model;
 
 import lombok.Data;
 
@@ -7,8 +7,8 @@ public class Paciente {
 
     int id;
     String nome;
-    String data_de_nascimento;
+    String dataNascimento;
     String cpf;
     String telefone;
-    String endereço;
+    String endereco;
 }

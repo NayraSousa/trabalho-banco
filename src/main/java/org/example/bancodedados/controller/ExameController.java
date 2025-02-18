@@ -24,13 +24,18 @@ public class ExameController {
         exameService.excluirExame(id);
     }
 
-    @PutMapping("/atualizar")
-    public Exame alterarExame(@RequestBody Exame exame){
-        return exameService.alterarExame(exame);
+    @PutMapping("/atualizar/{id}")
+    public Exame alterarExame(@RequestBody Exame exame, @PathVariable int id){
+        return exameService.alterarExame(exame, id);
     }
 
     @GetMapping("/buscar")
     public List<Exame> buscarTodos(){
         return exameService.buscarTodos();
+    }
+
+    @GetMapping("/buscar/{id}")
+    public Exame buscarId(@PathVariable int id){
+        return exameService.buscarId(id);
     }
 }

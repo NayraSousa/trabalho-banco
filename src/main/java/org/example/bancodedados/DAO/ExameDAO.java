@@ -5,12 +5,10 @@ import org.example.bancodedados.model.Exame;
 import org.example.bancodedados.model.Medico;
 import org.example.bancodedados.model.Paciente;
 import org.example.bancodedados.model.Resultado;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,33 +16,46 @@ import java.util.List;
 public class ExameDAO {
     Connection conexao = Conexao.getConexao();
 
-    MedicoDAO medicoDAO = new MedicoDAO();
-    PacienteDAO pacienteDAO = new PacienteDAO();
-    ResultadoDAO resultadoDAO = new ResultadoDAO();
+    @Autowired
+    MedicoDAO medicoDAO;
+
+    @Autowired
+    PacienteDAO pacienteDAO;
+
+    @Autowired
+    ResultadoDAO resultadoDAO;
 
     public ExameDAO() throws SQLException {
     }
 
     public void inserirExame(Exame exame) throws SQLException {
+        String sql = "INSERT INTO Exames (descricao, tipo, preco, data_agendamento, paciente_id, medico_id, resultado_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        String sql = "insert into Exames (descricao, tipo, preco ,data_agendamento, paciente_id, medico_id, resultado_id) values (?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement preparador = conexao.prepareStatement(sql);
+        preparador.setString(1, exame.getDescricao());
+        preparador.setString(2, exame.getTipo());
+        preparador.setFloat(3, exame.getPreco());
+        preparador.setString(4, exame.getDataAgendamento());
 
-        Medico medico = medicoDAO.buscarId(exame.getMedico().getId());
-        Resultado resultado = resultadoDAO.buscarId(exame.getResultado().getId());
-        Paciente paciente = pacienteDAO.buscarId(exame.getPaciente().getId());
+        int idPaciente = exame.getPaciente().getId();
+        int idMedico = exame.getMedico().getId();
+        int idResultado = exame.getResultado().getId();
 
-            PreparedStatement preparador = conexao.prepareStatement(sql);
-            preparador.setString(1, exame.getDescricao());
-            preparador.setString(2, exame.getTipo());
-            preparador.setFloat(3, exame.getPreco());
-            preparador.setString(4, exame.getDataAgendamento());
-            preparador.setInt(5, paciente.getId());
-            preparador.setInt(6, medico.getId());
-            preparador.setInt(7, resultado.getId());
+        Paciente paciente = pacienteDAO.buscarId(idPaciente);
+        Medico medico = medicoDAO.buscarId(idMedico);
+        Resultado resultadoExame = resultadoDAO.buscarId(idResultado);
 
-            preparador.execute();
-            preparador.close();
-            System.out.println("Usuário cadastrado com Sucesso!!!");
+        exame.setPaciente(paciente);
+        exame.setMedico(medico);
+        exame.setResultado(resultadoExame);
+
+        preparador.setInt(5, exame.getPaciente().getId());
+        preparador.setInt(6, exame.getMedico().getId());
+        preparador.setInt(7, exame.getResultado().getId());
+        preparador.execute();
+        preparador.close();
+
     }
 
     public void excluirExame(int id) throws SQLException {
@@ -61,22 +72,34 @@ public class ExameDAO {
             preparador.close();
     }
 
-    public Exame alterarExame(Exame exame) throws SQLException {
-        String sql = "update Exames set descricao = ?, tipo = ?, preco = ?, data_agendamento = ?" +
-                "paciente_id = ?, medico_id = ?, resultado_id = ?";
+    public Exame alterarExame(Exame exame, int id) throws SQLException {
+        String sql = "update Exames set descricao = ?, tipo = ?, preco = ?, data_agendamento = ?," +
+                "paciente_id = ?, medico_id = ?, resultado_id = ? where id = ?";
 
-            PreparedStatement preparador = conexao.prepareStatement(sql);
-            preparador.setString(1, exame.getDescricao());
-            preparador.setString(2, exame.getTipo());
-            preparador.setFloat(3, exame.getPreco());
-            preparador.setString(4, exame.getDataAgendamento());
-            preparador.setInt(5, exame.getPaciente().getId());
-            preparador.setInt(6, exame.getMedico().getId());
-            preparador.setInt(7, exame.getResultado().getId());
+        PreparedStatement preparador = conexao.prepareStatement(sql);
+        preparador.setString(1, exame.getDescricao());
+        preparador.setString(2, exame.getTipo());
+        preparador.setFloat(3, exame.getPreco());
+        preparador.setString(4, exame.getDataAgendamento());
 
-            preparador.execute();
-            preparador.close();
-            System.out.println("Usuário atualizado com Sucesso!!!");
+        int idPaciente = exame.getPaciente().getId();
+        int idMedico = exame.getMedico().getId();
+        int idResultado = exame.getResultado().getId();
+
+        Paciente paciente = pacienteDAO.buscarId(idPaciente);
+        Medico medico = medicoDAO.buscarId(idMedico);
+        Resultado resultadoExame = resultadoDAO.buscarId(idResultado);
+
+        exame.setPaciente(paciente);
+        exame.setMedico(medico);
+        exame.setResultado(resultadoExame);
+
+        preparador.setInt(5, exame.getPaciente().getId());
+        preparador.setInt(6, exame.getMedico().getId());
+        preparador.setInt(7, exame.getResultado().getId());
+        preparador.setInt(8, id);
+        preparador.execute();
+        preparador.close();
         return exame;
     }
 
@@ -94,12 +117,53 @@ public class ExameDAO {
                 exame.setTipo(resultado.getString("tipo"));
                 exame.setPreco(resultado.getFloat("preco"));
                 exame.setDataAgendamento(resultado.getString("data_agendamento"));
-                exame.setPaciente((Paciente) resultado.getObject("id"));
-                exame.setMedico((Medico) resultado.getObject("id"));
-                exame.setResultado((Resultado) resultado.getObject("id"));
+
+                int idPaciente = resultado.getInt("paciente_id");
+                int idMedico = resultado.getInt("medico_id");
+                int idResultado = resultado.getInt("resultado_id");
+
+                Paciente paciente = pacienteDAO.buscarId(idPaciente);
+                Medico medico = medicoDAO.buscarId(idMedico);
+                Resultado resultadoExame = resultadoDAO.buscarId(idResultado);
+
+                exame.setPaciente(paciente);
+                exame.setMedico(medico);
+                exame.setResultado(resultadoExame);
 
                 lista.add(exame);
             }
         return lista;
+    }
+    public Exame buscarId(int id) throws SQLException {
+        String sql = "SELECT * FROM Exames WHERE id = ?";
+        PreparedStatement preparador = conexao.prepareStatement(sql);
+        preparador.setInt(1, id);
+
+        ResultSet resultado = preparador.executeQuery();
+
+        if (resultado.next()) {
+            Exame exame = new Exame();
+            exame.setId(resultado.getInt("id"));
+            exame.setDescricao(resultado.getString("descricao"));
+            exame.setPreco(resultado.getFloat("preco"));
+            exame.setTipo(resultado.getString("tipo"));
+            exame.setDataAgendamento(resultado.getString("data_agendamento"));
+
+            int idPaciente = resultado.getInt("paciente_id");
+            int idMedico = resultado.getInt("medico_id");
+            int idResultado = resultado.getInt("resultado_id");
+
+            Paciente paciente = pacienteDAO.buscarId(idPaciente);
+            Medico medico = medicoDAO.buscarId(idMedico);
+            Resultado resultadoExame = resultadoDAO.buscarId(idResultado);
+
+            exame.setPaciente(paciente);
+            exame.setMedico(medico);
+            exame.setResultado(resultadoExame);
+
+            return exame;
+        }
+
+        return null;
     }
 }

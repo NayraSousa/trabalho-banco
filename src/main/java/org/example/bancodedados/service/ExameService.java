@@ -2,6 +2,7 @@ package org.example.bancodedados.service;
 
 import org.example.bancodedados.DAO.ExameDAO;
 import org.example.bancodedados.model.Exame;
+import org.example.bancodedados.model.Medico;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +32,11 @@ public class ExameService {
         }
     }
 
-    public Exame alterarExame(Exame exame){
+    public Exame alterarExame(Exame exame, int id){
         Exame exameNovo = new Exame();
 
         try{
-            exameNovo = exameDAO.alterarExame(exame);
+            exameNovo = exameDAO.alterarExame(exame, id);
         } catch (SQLException e) {
             System.err.println("Erro: " + e);
         }
@@ -51,5 +52,16 @@ public class ExameService {
             System.err.println("Erro: " + e);
         }
         return exames;
+    }
+
+    public Exame buscarId(int id){
+        Exame exame = new Exame();
+
+        try{
+            exame = exameDAO.buscarId(id);
+        } catch (SQLException e){
+            System.err.println("Erro: " + e);
+        }
+        return exame;
     }
 }

@@ -1,0 +1,16 @@
+services:
+  db:
+    image: mysql:8.0.41
+    container_name: my-mysql
+    restart: always
+    environment:
+      - MYSQL_DATABASE=clinica
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - '3306:3306'
+    volumes:
+      - clinica-volume:/var/lib/mysql
+
+volumes:
+  clinica-volume:
+    driver: local
